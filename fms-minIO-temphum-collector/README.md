@@ -1,0 +1,1 @@
+batch 실행: docker compose --profile batch up fms-batch 

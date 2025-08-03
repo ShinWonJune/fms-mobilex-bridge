@@ -1,11 +1,12 @@
 from elasticsearch import Elasticsearch
 import json
 from datetime import datetime
+import os
 
 def get_latest_documents(
     index_pattern,
     rsc_type="FPDUS",
-    size=10,
+    size=100,
     time_field="@timestamp",
     host="10.20.2.21",
     port=59200

@@ -137,7 +137,6 @@ base_schema = {
     "@timestamp": None,
     "objId": None,
     "rsctypeId": None,
-    
     "TEMPERATURE": None,
     "TEMPERATURE1": None,
     "HUMIDITY": None,

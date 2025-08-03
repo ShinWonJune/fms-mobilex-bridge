@@ -1,0 +1,17 @@
+# 데이터 처리
+pandas==1.3.5
+numpy==1.21.6
+pyarrow==10.0.1
+
+# MinIO 클라이언트
+minio==7.1.17
+
+# HTTP 요청
+requests==2.31.0
+
+# 스케줄링
+schedule==1.2.0
+
+# 시간 처리
+python-dateutil>=2.8.2
+pytz==2023.3

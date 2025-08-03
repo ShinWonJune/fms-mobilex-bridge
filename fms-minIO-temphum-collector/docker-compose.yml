@@ -1,0 +1,53 @@
+services:
+  # 스트리밍 파이프라인
+  fms-streaming:
+    build: .
+    image: fms-datalake
+    container_name: fms-streaming
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./data/checkpoints:/app/data/checkpoints
+    healthcheck:
+      test: ["CMD", "/app/scripts/health-check.sh"]
+      interval: 2m
+      timeout: 30s
+      retries: 3
+      start_period: 1m
+
+  # 배치 처리
+  fms-batch:
+    image: fms-datalake
+    container_name: fms-batch
+    command: ["python", "src/streaming_pipeline.py", "--mode", "batch"]
+    restart: "no"
+    env_file:
+      - .env
+    profiles:
+      - batch
+
+  # 임시 데이터 검사 컨테이너
+  inspector:
+    image: fms-datalake
+    container_name: fms-inspector
+    command: ["python", "scripts/inspect_parquet.py"]
+    restart: "no"
+    env_file:
+      - .env
+    profiles:
+      - inspect
+  
+  data-inspector:
+    build: .
+    image: fms-datalake
+    container_name: data-inspector
+    command: ["python", "scripts/elasticsearch_inspect.py"]
+    env_file:
+      - .env
+    profiles:
+      - inspect
+
+volumes:
+  checkpoints:
+    driver: local

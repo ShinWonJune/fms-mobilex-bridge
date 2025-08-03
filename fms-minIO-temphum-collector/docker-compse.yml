@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # 통합 스트리밍 파이프라인 (단일 컨테이너)
+  fms-streaming-pipeline:
+    image: fms-streaming:latest
+    container_name: fms-streaming
+    command: >
+      python streaming_pipeline.py
+      --mode streaming
+      --es-url ${ES_URL}
+      --minio-endpoint ${MINIO_ENDPOINT}
+      --minio-access-key ${MINIO_ACCESS_KEY}
+      --minio-secret-key ${MINIO_SECRET_KEY}
+      --bucket-name ${BUCKET_NAME}
+      --fields "TEMPERATURE,HUMIDITY,TEMPERATURE1,HUMIDITY1,objId,rsctypeId"
+    restart: always
+    environment:
+      - ES_URL=http://10.20.2.21:59200
+      - MINIO_ENDPOINT=10.79.1.1:9000
+      - MINIO_ACCESS_KEY=your-access-key
+      - MINIO_SECRET_KEY=your-secret-key
+      - BUCKET_NAME=fms-data
+    volumes:
+      - ./checkpoints:/app/checkpoints
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os; exit(0 if os.path.exists('streaming_checkpoint.json') else 1)"]
+      interval: 2m
+      timeout: 30s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+  # 배치 처리 (필요시에만)
+  fms-batch-processor:
+    image: fms-streaming:latest
+    container_name: fms-batch
+    command: >
+      python streaming_pipeline.py
+      --mode batch
+      --target-month 2025-05
+    restart: "no"
+    environment:
+      - ES_URL=http://10.20.2.21:59200
+      - MINIO_ENDPOINT=10.79.1.1:9000
+      - MINIO_ACCESS_KEY=your-access-key
+      - MINIO_SECRET_KEY=your-secret-key
+      - BUCKET_NAME=fms-data
+    profiles:
+      - batch
+
+volumes:
+  checkpoints:
+    driver: local

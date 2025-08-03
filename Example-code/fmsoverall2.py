@@ -20,7 +20,8 @@ def get_sample_docs(index_name, size=5, host='10.20.2.21', port=59200, scheme='h
     return response["hits"]["hits"]
 
 if __name__ == "__main__":
-    index_name = "rscstatrawmonth-fms-2024.06"
+    # index_name = "rscstatrawmonth-fms-2024.05"
+    index_name = "perfhist-fms-2025.07.31-0"
     
     # 1) 매핑 확인
     mapping_info = get_index_mapping(index_name=index_name)
